@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LeBuscho's Dark Hub</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+
+/* ===================== RESET ===================== */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Orbitron', sans-serif;
+}
+
+body{
+    background:#05010a;
+    overflow:hidden;
+    color:white;
+}
+
+/* ===================== NEON BACKGROUND ===================== */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at 20% 20%, #a100ff55, transparent 25%),
+        radial-gradient(circle at 80% 30%, #6a00ff55, transparent 30%),
+        radial-gradient(circle at 50% 80%, #ff00ff22, transparent 40%);
+    filter:blur(60px);
+    animation:bgMove 10s infinite alternate ease-in-out;
+}
+
+@keyframes bgMove{
+    0%{transform:scale(1);}
+    100%{transform:scale(1.2) rotate(5deg);}
+}
+
+/* ===================== FLOATING PARTICLES ===================== */
+.particles{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background-image:radial-gradient(white 1px, transparent 1px);
+    background-size:40px 40px;
+    opacity:0.05;
+}
+
+/* ===================== CURSOR GLOW ===================== */
+.cursor-glow{
+    position:fixed;
+    width:300px;
+    height:300px;
+    background:radial-gradient(circle, #b300ff55, transparent 60%);
+    pointer-events:none;
+    transform:translate(-50%, -50%);
+    filter:blur(20px);
+}
+
+/* ===================== LAYOUT ===================== */
+.container{
+    position:relative;
+    z-index:2;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+/* ===================== TITLE ===================== */
+h1{
+    font-size:70px;
+    color:#d06bff;
+    text-shadow:
+        0 0 10px #c200ff,
+        0 0 30px #a000ff,
+        0 0 60px #7a00ff;
+    margin-bottom:10px;
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+    50%{
+        text-shadow:
+            0 0 20px #ff00ff,
+            0 0 60px #a000ff,
+            0 0 120px #7a00ff;
+    }
+}
+
+.subtitle{
+    color:#bbb;
+    margin-bottom:40px;
+}
+
+/* ===================== BUTTONS (BASE) ===================== */
+.btn{
+    width:340px;
+    padding:18px;
+    margin:15px;
+    border-radius:16px;
+    text-decoration:none;
+    color:white;
+    font-size:20px;
+    font-weight:bold;
+    background:rgba(255,255,255,0.05);
+    border:1px solid #b000ff;
+    backdrop-filter:blur(10px);
+    box-shadow:0 0 20px #7a00ff55;
+    transition:0.3s;
+    position:relative;
+    overflow:hidden;
+}
+
+.btn:hover{
+    transform:scale(1.05);
+    box-shadow:
+        0 0 20px #ff00ff,
+        0 0 60px #8a00ff;
+    background:rgba(160,0,255,0.25);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="particles"></div>
+<div class="cursor-glow" id="glow"></div>
+
+<div class="container">
+
+<h1>LeBuscho's Dark Hub</h1>
+<div class="subtitle">Alle Systeme im Überblick</div>
+<!-- ===================== BUTTONS ===================== -->
+
+<a class="btn" href="https://bigtimefm.de/wunschbox" target="_blank">
+🎵 BigTimeFM
+</a>
+
+<a class="btn" href="https://scnx.app/de/guild/1469647834675413079/bot/manage" target="_blank">
+🤖 SCNX Bot Dashboard
+</a>
+
+<a class="btn" href="https://dash.pwr.lol/" target="_blank">
+⚡ PowerBot Dashboard
+</a>
+
+<a class="btn" href="https://dash.galaxybot.app/" target="_blank">
+🌌 GalaxyBot Dashboard
+</a>
+
+</div> <!-- container endet hier -->
+<script>
+
+/* ===================== CURSOR GLOW ===================== */
+const glow = document.getElementById("glow");
+
+document.addEventListener("mousemove", (e) => {
+    glow.style.left = e.clientX + "px";
+    glow.style.top = e.clientY + "px";
+});
+
+/* ===================== SIMPLE FLOAT EFFECT ===================== */
+const buttons = document.querySelectorAll(".btn");
+
+buttons.forEach(btn => {
+    btn.addEventListener("mousemove", (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        btn.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,0,255,0.3), rgba(0,0,0,0.2))`;
+    });
+
+    btn.addEventListener("mouseleave", () => {
+        btn.style.background = "rgba(255,255,255,0.05)";
+    });
+});
+
+</script>
+
+</body>
+</html>
