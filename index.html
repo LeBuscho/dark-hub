@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeBuscho's Dark Hub V3</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Orbitron',sans-serif; }
+body { color:white; background:#070012; min-height:100vh; overflow:auto; }
+
+body.default-bg::before {
+    content: "";
+    position: fixed;
+    inset: -30%;
+    background: linear-gradient(-45deg, #12001f, #350066, #7d00ff, #ff00ff, #4a00ff, #220033, #12001f);
+    background-size: 600% 600%;
+    animation: bgMove 18s ease infinite;
+    filter: blur(80px);
+    z-index: -5;
+}
+@keyframes bgMove { 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
+
+h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
+.subtitle { margin-top:6px; margin-bottom:22px; color:#d0d0d0; font-size:14px; }
+
+.search { display:flex; gap:10px; margin-bottom:22px; max-width:500px; padding:0 15px; }
+.search input { flex:1; padding:13px; font-size:15px; border:none; border-radius:14px; background:white; color:black; }
+.search button { padding:13px 20px; font-size:14px; font-weight:bold; border:none; border-radius:14px; background:linear-gradient(135deg,#7d00ff,#ff00ff); color:white; }
+
+.btn { width:300px; padding:13px; margin:6px; display:flex; justify-content:center; align-items:center; gap:8px; text-decoration:none; font-size:15px; font-weight:bold; color:white; background:rgba(255,255,255,.08); border:1px solid rgba(255,0,255,.35); border-radius:14px; transition:.3s; }
+.btn:hover { transform:translateY(-3px); background:rgba(255,0,255,.15); }
+
+.quickApps { position:fixed; left:10px; bottom:10px; display:flex; flex-direction:column; gap:5px; z-index:50; }
+.app-btn { width:200px; padding:10px 14px; display:flex; justify-content:center; align-items:center; gap:7px; text-decoration:none; font-size:13px; font-weight:bold; color:white; background:rgba(255,255,255,.08); border:1px solid rgba(255,0,255,.35); border-radius:12px; }
+
+.clock { position:fixed; left:10px; top:10px; padding:9px 13px; border-radius:12px; background:rgba(255,255,255,.08); border:1px solid rgba(255,0,255,.3); z-index:50; }
+#time { font-size:19px; }
+
+.settings-btn { position:fixed; right:10px; top:10px; width:44px; height:44px; border:none; border-radius:50%; background:rgba(255,255,255,.1); border:1px solid rgba(255,0,255,.4); color:white; font-size:21px; cursor:pointer; z-index:100; }
+
+.settings-modal { 
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); 
+    background:#0f0022; border:1px solid #ff00ff; border-radius:18px; 
+    padding:22px; width:290px; z-index:200; box-shadow:0 0 25px rgba(255,0,255,.3); display:none; 
+}
+.settings-modal.active { display:block; }
+
+.tab-buttons-settings { display:flex; gap:8px; margin-bottom:12px; }
+.tab-btn-settings { flex:1; padding:9px; background:rgba(255,255,255,.08); border:1px solid rgba(255,0,255,.4); color:white; border-radius:8px; cursor:pointer; font-size:13px; }
+.tab-btn-settings.active { background:#ff00ff; color:#0a0018; }
+
+.setting-option {
+    padding:11px; margin:7px 0; background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,0,255,.3); border-radius:9px; cursor:pointer; font-size:14px;
+}
+.setting-option:hover { background:rgba(255,0,255,.15); }
+.setting-option.active { background:#ff00ff; color:#0a0018; }
+
+.tab-buttons { display:flex; justify-content:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.tab-btn { padding:10px 18px; background:rgba(255,255,255,.08); border:1px solid rgba(255,0,255,.4); color:white; border-radius:10px; cursor:pointer; font-size:14px; transition:0.3s; }
+.tab-btn.active { background:#ff00ff; color:#0a0018; border-color:#ff00ff; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block !important; }
+
+#dashboard.active { overflow: hidden; height: 100vh; }
+
+#dashboard .container {
+    min-height: calc(100vh - 95px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px 15px;
+}
+
+.game-selector { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.game-btn { padding:9px 15px; background:rgba(255,255,255,.08); border:1px solid rgba(255,0,255,.4); color:white; border-radius:9px; cursor:pointer; font-size:13px; }
+.game-btn.active { background:#ff00ff; color:#0a0018; }
+
+.mobile-controls { display:none; margin-top:10px; }
+@media (max-width: 768px) {
+    .mobile-controls { display:block; }
+    h1 { font-size:38px; }
+    .btn { width:92%; padding:11px; font-size:14px; }
+    .app-btn { width:175px; padding:9px 12px; font-size:12px; }
+    .settings-modal { width:94%; max-width:270px; }
+}
+</style>
+</head>
+<body class="default-bg">
+
+<!-- Ladebildschirm -->
+<div id="loading" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(5,1,10,0.92);display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:9999999;">
+    <div style="width:85px;height:85px;border-radius:50%;border:4px solid rgba(255,255,255,.1);border-top:4px solid #ff00ff;animation:spin 1s linear infinite;box-shadow:0 0 25px #ff00ff;"></div>
+    <div style="margin-top:18px;font-size:19px;color:#ff9cff;">BOOTING DARK HUB...</div>
+</div>
+
+<div class="clock">
+    <div id="time">00:00:00</div>
+</div>
+
+<button class="settings-btn" onclick="toggleSettingsMenu()">⚙️</button>
+
+<!-- Einstellungen -->
+<div id="settingsModal" class="settings-modal">
+    <h3 style="margin-bottom:12px;">⚙️ Einstellungen</h3>
+    
+    <div class="tab-buttons-settings">
+        <button class="tab-btn-settings active" onclick="showSettingsTab('background')">Hintergrund</button>
+        <button class="tab-btn-settings" onclick="showSettingsTab('sound')">Sound</button>
+    </div>
+
+    <div id="background-tab">
+        <div style="margin-bottom:8px;font-weight:bold;font-size:14px;">Hintergrund wählen:</div>
+        <div class="setting-option active" onclick="changeBackground(0, this)">Lila Gradient (Standard)</div>
+        <div class="setting-option" onclick="changeBackground(1, this)">🌄 Berge &amp; Natur</div>
+        <div class="setting-option" onclick="changeBackground(2, this)">🌊 Wasser &amp; Gebirge</div>
+        <div class="setting-option" onclick="changeBackground(3, this)">🏖️ Mann am Strand</div>
+        <div class="setting-option" onclick="changeBackground(4, this)">🚗 Verkehrs Gebirge</div>
+    </div>
+
+    <div id="sound-tab" style="display:none;">
+        <div style="margin-bottom:8px;font-weight:bold;font-size:14px;">Sound</div>
+        <div class="setting-option" onclick="toggleTypingSound()">
+            <span id="typingStatus">🔊 Typing Sound: AN</span>
+        </div>
+        <div class="setting-option" onclick="toggleAmbientMusic()">
+            <span id="musicStatus">🎵 Ambient Music: AUS</span>
+        </div>
+    </div>
+
+    <button onclick="toggleSettingsMenu()" style="margin-top:18px;width:100%;padding:10px;background:#ff00ff;color:white;border:none;border-radius:9px;">Schließen</button>
+</div>
+
+<!-- Schnellzugriff -->
+<div class="quickApps">
+    <a class="app-btn" href="discord://" target="_blank">💬 Discord</a>
+</div>
+<div style="position:fixed;right:10px;bottom:10px;z-index:50;">
+    <a class="app-btn" href="roblox://" target="_blank" style="width:200px;">🎮 Roblox App</a>
+</div>
+
+<!-- Haupt Tabs -->
+<div style="text-align:center;margin-top:12px;">
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
+        <button class="tab-btn" onclick="showTab('tools')">Tools</button>
+        <button class="tab-btn" onclick="showTab('games')">Games</button>
+        <button class="tab-btn" onclick="showTab('timer')">Timer</button>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="tab-content active">
+    <div class="container">
+        <form class="search" id="searchForm">
+            <input id="searchInput" type="text" placeholder="🔍 Google suchen...">
+            <button>Suchen</button>
+        </form>
+
+        <h1>LeBuscho's Dark Hub</h1>
+        <div class="subtitle">Cyber Neon Dashboard</div>
+
+        <a class="btn" href="https://bigtimefm.de/wunschbox" target="_blank">🎵 BigTimeFM</a>
+        <a class="btn" href="https://scnx.app/de/guild/1469647834675413079/bot/manage" target="_blank">🤖 SCNX Dashboard</a>
+        <a class="btn" href="https://dash.pwr.lol/" target="_blank">⚡ PowerBot</a>
+        <a class="btn" href="https://dash.galaxybot.app/" target="_blank">🌌 GalaxyBot</a>
+        <a class="btn" href="https://www.youtube.com" target="_blank">📺 YouTube</a>
+        <a class="btn" href="https://www.roblox.com" target="_blank">🌐 Roblox Website</a>
+    </div>
+</div>
+
+<!-- TOOLS -->
+<div id="tools" class="tab-content">
+    <div style="max-width:820px;margin:25px auto;padding:0 15px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,0,255,.4);border-radius:16px;padding:18px;">
+                <h3>✅ To-Do Liste</h3>
+                <ul id="todoList"></ul>
+                <div style="display:flex;gap:7px;margin-top:8px;">
+                    <input id="todoInput" type="text" placeholder="Neue Aufgabe..." style="flex:1;padding:10px;border-radius:9px;border:none;background:white;color:black;">
+                    <button onclick="addTodo()" style="padding:10px 15px;background:#ff00ff;color:white;border:none;border-radius:9px;">+</button>
+                </div>
+            </div>
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,0,255,.4);border-radius:16px;padding:18px;">
+                <h3>📝 Schnelle Notizen</h3>
+                <textarea id="notes" placeholder="Hier kannst du schnell Notizen machen..." style="width:100%;height:150px;background:#0a0018;border:1px solid #ff00ff;border-radius:11px;padding:11px;color:white;resize:vertical;"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GAMES -->
+<div id="games" class="tab-content">
+    <div style="text-align:center;margin:20px 0;">
+        <h2 style="color:#ff9cff;">🎮 Games</h2>
+    </div>
+    
+    <div class="game-selector">
+        <button class="game-btn active" onclick="showGame('snake')">Snake</button>
+        <button class="game-btn" onclick="showGame('pong')">Pong</button>
+        <button class="game-btn" onclick="showGame('breakout')">Breakout</button>
+        <button class="game-btn" onclick="showGame('tictactoe')">Tic Tac Toe</button>
+        <button class="game-btn" onclick="showGame('memory')">Memory</button>
+        <button class="game-btn" onclick="showGame('reaction')">Reaction</button>
+        <button class="game-btn" onclick="showGame('dodge')">Dodge</button>
+        <button class="game-btn" onclick="showGame('clicker')">Clicker</button>
+    </div>
+
+    <!-- Snake -->
+    <div id="snake" class="game-container active" style="text-align:center;">
+        <h3>⚡ NEON SNAKE</h3>
+        <canvas id="gameCanvas" width="180" height="180"></canvas>
+        
+        <div class="mobile-controls">
+            <div style="display:flex;justify-content:center;gap:8px;">
+                <button onclick="snakeDirection('up')" style="padding:14px 22px;background:#ff00ff;color:white;border:none;border-radius:8px;font-size:22px;">↑</button>
+            </div>
+            <div style="display:flex;justify-content:center;gap:8px;margin-top:5px;">
+                <button onclick="snakeDirection('left')" style="padding:14px 22px;background:#ff00ff;color:white;border:none;border-radius:8px;font-size:22px;">←</button>
+                <button onclick="snakeDirection('right')" style="padding:14px 22px;background:#ff00ff;color:white;border:none;border-radius:8px;font-size:22px;">→</button>
+            </div>
+            <div style="display:flex;justify-content:center;gap:8px;margin-top:5px;">
+                <button onclick="snakeDirection('down')" style="padding:14px 22px;background:#ff00ff;color:white;border:none;border-radius:8px;font-size:22px;">↓</button>
+            </div>
+        </div>
+        
+        <div style="margin-top:8px;">Score: <span id="gameScore">0</span></div>
+        <button id="gameStartBtn" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">▶ START</button>
+    </div>
+
+    <!-- Pong mit KI -->
+    <div id="pong" class="game-container" style="text-align:center;display:none;">
+        <h3>🏓 PONG</h3>
+        <canvas id="pongCanvas" width="400" height="300"></canvas>
+        <button onclick="startPong()" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">Start</button>
+    </div>
+
+    <!-- Breakout mit Blöcken -->
+    <div id="breakout" class="game-container" style="text-align:center;display:none;">
+        <h3>🧱 BREAKOUT</h3>
+        <canvas id="breakoutCanvas" width="400" height="300"></canvas>
+        <button onclick="startBreakout()" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">Start</button>
+    </div>
+
+    <!-- Tic Tac Toe -->
+    <div id="tictactoe" class="game-container" style="text-align:center;display:none;">
+        <h3>❌ Tic Tac Toe</h3>
+        <div id="tictactoeBoard" style="display:grid;grid-template-columns:repeat(3,75px);gap:5px;margin:15px auto;width:235px;"></div>
+        <button onclick="resetTicTacToe()" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">Reset</button>
+    </div>
+
+    <!-- Memory -->
+    <div id="memory" class="game-container" style="text-align:center;display:none;">
+        <h3>🧠 Memory Match</h3>
+        <div id="memoryBoard" style="display:grid;grid-template-columns:repeat(4,65px);gap:6px;margin:15px auto;width:280px;"></div>
+    </div>
+
+    <!-- Reaction mit Random Delay -->
+    <div id="reaction" class="game-container" style="text-align:center;display:none;">
+        <h3>⚡ Reaction Clicker</h3>
+        <div id="reactionBox" style="width:280px;height:180px;background:#ff00ff;margin:15px auto;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;">Click when green!</div>
+    </div>
+
+    <!-- Dodge -->
+    <div id="dodge" class="game-container" style="text-align:center;display:none;">
+        <h3>🚀 Dodge the Blocks</h3>
+        <canvas id="dodgeCanvas" width="400" height="300"></canvas>
+        <button onclick="startDodge()" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">Start</button>
+    </div>
+
+    <!-- Clicker -->
+    <div id="clicker" class="game-container" style="text-align:center;display:none;">
+        <h3>🖱️ Click Speed Test</h3>
+        <div style="font-size:42px;margin:15px 0;" id="clickCount">0</div>
+        <button onclick="startClicker()" style="padding:12px 26px;background:#ff00ff;color:white;border:none;border-radius:10px;">Start 10 Sekunden</button>
+    </div>
+</div>
+
+<!-- TIMER -->
+<div id="timer" class="tab-content" style="display:none;">
+    <div style="max-width:400px;margin:25px auto;text-align:center;">
+        <h3>⏱️ Pomodoro Timer</h3>
+        <div id="timerDisplay" style="font-size:52px;margin:12px 0;">25:00</div>
+        <div>
+            <button onclick="startTimer(25)" style="padding:8px 14px;margin:3px;background:#ff00ff;color:white;border:none;border-radius:8px;">25 Min</button>
+            <button onclick="startTimer(15)" style="padding:8px 14px;margin:3px;background:#ff00ff;color:white;border:none;border-radius:8px;">15 Min</button>
+            <button onclick="startTimer(5)" style="padding:8px 14px;margin:3px;background:#ff00ff;color:white;border:none;border-radius:8px;">5 Min</button>
+            <button onclick="stopTimer()" style="padding:8px 14px;margin:3px;background:#555;color:white;border:none;border-radius:8px;">Stop</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// =======================
+//   Ladebildschirm
+// =======================
+const loading = document.getElementById("loading");
+function hideLoadingScreen() {
+    if (!loading) return;
+    loading.style.transition = "opacity 0.5s ease";
+    loading.style.opacity = "0";
+    setTimeout(() => { if (loading && loading.parentNode) loading.parentNode.removeChild(loading); }, 500);
+}
+setTimeout(hideLoadingScreen, 1800);
+
+// =======================
+//   CLOCK
+// =======================
+const timeEl = document.getElementById("time");
+function updateClock() {
+    const now = new Date();
+    timeEl.innerHTML = now.toLocaleTimeString("de-DE");
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// =======================
+//   HINTERGRUND + SPEICHERN
+// =======================
+const backgrounds = [
+    { name: "Lila Gradient", type: "gradient" },
+    { name: "🌄 Berge & Natur", url: "https://picsum.photos/id/1016/1920/1080" },
+    { name: "🌊 Wasser & Gebirge", url: "https://picsum.photos/id/1015/1920/1080" },
+    { name: "🏖️ Mann am Strand", url: "https://picsum.photos/id/1005/1920/1080" },
+    { name: "🚗 Verkehrs Gebirge", url: "https://picsum.photos/id/1018/1920/1080" }
+];
+
+function changeBackground(index, element) {
+    const body = document.body;
+    document.querySelectorAll('.setting-option').forEach(el => el.classList.remove('active'));
+    if (element) element.classList.add('active');
+    localStorage.setItem('selectedBackground', index);
+
+    if (index === 0) {
+        body.classList.add('default-bg');
+        body.style.backgroundImage = 'none';
+        document.querySelector('.clock').style.color = 'white';
+    } else {
+        body.classList.remove('default-bg');
+        body.style.backgroundImage = `url('${backgrounds[index].url}')`;
+        body.style.backgroundSize = 'cover';
+        body.style.backgroundPosition = 'center';
+        document.querySelector('.clock').style.color = 'black';
+    }
+}
+
+window.addEventListener('load', () => {
+    const saved = localStorage.getItem('selectedBackground');
+    if (saved !== null) {
+        const index = parseInt(saved);
+        const options = document.querySelectorAll('.setting-option');
+        if (options[index]) changeBackground(index, options[index]);
+    }
+});
+
+// =======================
+//   SOUND + MUSIC
+// =======================
+let typingSoundEnabled = true;
+let ambientMusicEnabled = false;
+let audioContext;
+let musicOscillator;
+
+function toggleTypingSound() {
+    typingSoundEnabled = !typingSoundEnabled;
+    document.getElementById('typingStatus').innerHTML = typingSoundEnabled ? '🔊 Typing Sound: AN' : '🔇 Typing Sound: AUS';
+}
+
+function toggleAmbientMusic() {
+    ambientMusicEnabled = !ambientMusicEnabled;
+    document.getElementById('musicStatus').innerHTML = ambientMusicEnabled ? '🎵 Ambient Music: AN' : '🎵 Ambient Music: AUS';
+
+    if (ambientMusicEnabled) {
+        startAmbientMusic();
+    } else {
+        stopAmbientMusic();
+    }
+}
+
+function startAmbientMusic() {
+    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (musicOscillator) musicOscillator.stop();
+
+    musicOscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    musicOscillator.type = 'sine';
+    musicOscillator.frequency.value = 55;
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+    gain.gain.value = 0.08;
+
+    musicOscillator.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+
+    musicOscillator.start();
+}
+
+function stopAmbientMusic() {
+    if (musicOscillator) {
+        musicOscillator.stop();
+        musicOscillator = null;
+    }
+}
+
+const searchInput = document.getElementById('searchInput');
+if (searchInput) {
+    searchInput.addEventListener('keydown', () => {
+        if (typingSoundEnabled) {
+            const audio = new AudioContext();
+            const osc = audio.createOscillator();
+            const gain = audio.createGain();
+            osc.frequency.value = 880;
+            gain.gain.value = 0.1;
+            osc.connect(gain);
+            gain.connect(audio.destination);
+            osc.start();
+            setTimeout(() => { osc.stop(); }, 80);
+        }
+    });
+}
+
+// =======================
+//   EINSTELLUNGEN
+// =======================
+function showSettingsTab(tab) {
+    document.getElementById('background-tab').style.display = (tab === 'background') ? 'block' : 'none';
+    document.getElementById('sound-tab').style.display = (tab === 'sound') ? 'block' : 'none';
+    document.querySelectorAll('.tab-btn-settings').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+}
+
+function toggleSettingsMenu() {
+    document.getElementById('settingsModal').classList.toggle('active');
+}
+
+// =======================
+//   TO-DO + NOTIZEN
+// =======================
+function loadTodos() {
+    const list = document.getElementById('todoList');
+    if (!list) return;
+    list.innerHTML = '';
+    let todos = [];
+    try { todos = JSON.parse(localStorage.getItem('todos')) || []; } catch(e) {}
+
+    todos.forEach((todo, index) => {
+        const li = document.createElement('li');
+        li.style.cssText = 'background:rgba(255,255,255,.08);padding:9px 11px;margin-bottom:5px;border-radius:8px;';
+        li.innerHTML = `
+            <span style="${todo.done ? 'text-decoration:line-through;opacity:0.6' : ''}">${todo.text}</span>
+            <div style="float:right;">
+                <button onclick="toggleTodo(${index})" style="background:none;border:none;color:#00f0ff;font-size:15px;">✓</button>
+                <button onclick="deleteTodo(${index})" style="background:none;border:none;color:#ff00ff;font-size:15px;">✕</button>
+            </div>
+        `;
+        list.appendChild(li);
+    });
+}
+
+function addTodo() {
+    const input = document.getElementById('todoInput');
+    if (!input.value.trim()) return;
+    let todos = [];
+    try { todos = JSON.parse(localStorage.getItem('todos')) || []; } catch(e) {}
+    todos.push({ text: input.value.trim(), done: false });
+    try { localStorage.setItem('todos', JSON.stringify(todos)); } catch(e) {}
+    input.value = '';
+    loadTodos();
+}
+
+function toggleTodo(index) {
+    let todos = [];
+    try { todos = JSON.parse(localStorage.getItem('todos')) || []; } catch(e) {}
+    todos[index].done = !todos[index].done;
+    try { localStorage.setItem('todos', JSON.stringify(todos)); } catch(e) {}
+    loadTodos();
+}
+
+function deleteTodo(index) {
+    let todos = [];
+    try { todos = JSON.parse(localStorage.getItem('todos')) || []; } catch(e) {}
+    todos.splice(index, 1);
+    try { localStorage.setItem('todos', JSON.stringify(todos)); } catch(e) {}
+    loadTodos();
+}
+
+const notesArea = document.getElementById('notes');
+if (notesArea) {
+    notesArea.value = localStorage.getItem('quickNotes') || '';
+    notesArea.addEventListener('input', () => {
+        try { localStorage.setItem('quickNotes', notesArea.value); } catch(e) {}
+    });
+}
+
+window.addEventListener('load', () => {
+    loadTodos();
+});
+
+// =======================
+//   TAB SYSTEM
+// =======================
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    document.body.style.overflow = (tabId === 'dashboard') ? 'hidden' : 'auto';
+}
+
+// =======================
+//   GAME SWITCHER
+// =======================
+function showGame(gameId) {
+    document.querySelectorAll('.game-container').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.game-btn').forEach(el => el.classList.remove('active'));
+
+    document.getElementById(gameId).style.display = 'block';
+    event.currentTarget.classList.add('active');
+}
+
+// =======================
+//   SNAKE (mit Glow + WASD + Mobile Buttons)
+// =======================
+let snakeDx = 15, snakeDy = 0, snakeRunning = false;
+
+function snakeDirection(dir) {
+    if (!snakeRunning) return;
+    if (dir === 'up' && snakeDy !== 15) { snakeDx = 0; snakeDy = -15; }
+    if (dir === 'down' && snakeDy !== -15) { snakeDx = 0; snakeDy = 15; }
+    if (dir === 'left' && snakeDx !== 15) { snakeDx = -15; snakeDy = 0; }
+    if (dir === 'right' && snakeDx !== -15) { snakeDx = 15; snakeDy = 0; }
+}
+
+function initSnakeGame() {
+    const canvas = document.getElementById("gameCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let snake = [{x:5,y:5}, {x:4,y:5}, {x:3,y:5}];
+    let food = {x:8,y:8};
+    let score = 0;
+    let interval = null;
+
+    function draw() {
+        ctx.fillStyle = "#0a0018";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.shadowColor = "#ff00ff";
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = "#00ffff";
+        snake.forEach((s, i) => {
+            ctx.fillRect(s.x*15, s.y*15, 14, 14);
+            if (i === 0) {
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(s.x*15 + 4, s.y*15 + 4, 6, 6);
+                ctx.fillStyle = "#00ffff";
+            }
+        });
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = "#ff00ff";
+        ctx.fillRect(food.x*15, food.y*15, 14, 14);
+        ctx.shadowBlur = 0;
+    }
+
+    function move() {
+        const head = {x: snake[0].x + (snakeDx/15), y: snake[0].y + (snakeDy/15)};
+        if (head.x < 0 || head.x > 11 || head.y < 0 || head.y > 11) { endGame(); return; }
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+            score++;
+            document.getElementById("gameScore").innerText = score;
+            food = {x: Math.floor(Math.random()*12), y: Math.floor(Math.random()*12)};
+        } else {
+            snake.pop();
+        }
+    }
+
+    function gameLoop() {
+        if (!snakeRunning) return;
+        move();
+        draw();
+    }
+
+    function startGame() {
+        if (snakeRunning) return;
+        snake = [{x:5,y:5}, {x:4,y:5}, {x:3,y:5}];
+        snakeDx = 15; snakeDy = 0;
+        score = 0;
+        document.getElementById("gameScore").innerText = score;
+        snakeRunning = true;
+        if (interval) clearInterval(interval);
+        interval = setInterval(gameLoop, 140);
+        draw();
+    }
+
+    function endGame() {
+        snakeRunning = false;
+        clearInterval(interval);
+        alert("Game Over! Score: " + score);
+    }
+
+    document.getElementById("gameStartBtn").onclick = startGame;
+
+    document.addEventListener("keydown", e => {
+        if (!snakeRunning) return;
+        const key = e.key.toLowerCase();
+        if ((key === "arrowleft" || key === "a") && snakeDx !== 15) { snakeDx = -15; snakeDy = 0; }
+        if ((key === "arrowright" || key === "d") && snakeDx !== -15) { snakeDx = 15; snakeDy = 0; }
+        if ((key === "arrowup" || key === "w") && snakeDy !== 15) { snakeDx = 0; snakeDy = -15; }
+        if ((key === "arrowdown" || key === "s") && snakeDy !== -15) { snakeDx = 0; snakeDy = 15; }
+    });
+
+    draw();
+}
+
+window.addEventListener("load", () => {
+    document.body.style.overflow = 'hidden';
+    initSnakeGame();
+});
+
+// =======================
+//   PONG mit KI
+// =======================
+function startPong() {
+    const canvas = document.getElementById("pongCanvas");
+    const ctx = canvas.getContext("2d");
+    let ball = {x:200, y:150, dx:4, dy:4};
+    let playerPaddle = {y:120};
+    let aiPaddle = {y:120};
+
+    function draw() {
+        ctx.fillStyle = "#0a0018";
+        ctx.fillRect(0,0,400,300);
+        ctx.fillStyle = "#ff00ff";
+        ctx.fillRect(20, playerPaddle.y, 10, 60);
+        ctx.fillRect(370, aiPaddle.y, 10, 60);
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, 8, 0, Math.PI*2);
+        ctx.fillStyle = "#00ffff";
+        ctx.fill();
+    }
+
+    function update() {
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+        if (ball.y < 0 || ball.y > 300) ball.dy = -ball.dy;
+
+        if (ball.x < 30 && ball.y > playerPaddle.y && ball.y < playerPaddle.y + 60) ball.dx = -ball.dx;
+        if (ball.x > 360 && ball.y > aiPaddle.y && ball.y < aiPaddle.y + 60) ball.dx = -ball.dx;
+
+        if (ball.y > aiPaddle.y + 30) aiPaddle.y += 4;
+        if (ball.y < aiPaddle.y + 30) aiPaddle.y -= 4;
+        aiPaddle.y = Math.max(0, Math.min(240, aiPaddle.y));
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    function movePlayer(e) {
+        const rect = canvas.getBoundingClientRect();
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        playerPaddle.y = Math.max(0, Math.min(240, y - rect.top - 30));
+    }
+
+    canvas.addEventListener("mousemove", movePlayer);
+    canvas.addEventListener("touchmove", movePlayer);
+    loop();
+}
+
+// =======================
+//   BREAKOUT mit Blöcken
+// =======================
+function startBreakout() {
+    const canvas = document.getElementById("breakoutCanvas");
+    const ctx = canvas.getContext("2d");
+    let ball = {x:200, y:250, dx:3, dy:-3};
+    let paddle = {x:150};
+    let bricks = [];
+    const brickRowCount = 4;
+    const brickColumnCount = 8;
+    const brickWidth = 45;
+    const brickHeight = 15;
+    const brickPadding = 5;
+    const brickOffsetTop = 30;
+    const brickOffsetLeft = 15;
+
+    for (let c = 0; c < brickColumnCount; c++) {
+        bricks[c] = [];
+        for (let r = 0; r < brickRowCount; r++) {
+            bricks[c][r] = { x: 0, y: 0, status: 1 };
+        }
+    }
+
+    function draw() {
+        ctx.fillStyle = "#0a0018";
+        ctx.fillRect(0,0,400,300);
+        ctx.fillStyle = "#ff00ff";
+        ctx.fillRect(paddle.x, 280, 80, 10);
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, 8, 0, Math.PI*2);
+        ctx.fillStyle = "#00ffff";
+        ctx.fill();
+
+        for (let c = 0; c < brickColumnCount; c++) {
+            for (let r = 0; r < brickRowCount; r++) {
+                if (bricks[c][r].status === 1) {
+                    const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                    const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                    bricks[c][r].x = brickX;
+                    bricks[c][r].y = brickY;
+                    ctx.fillStyle = "#ff00ff";
+                    ctx.fillRect(brickX, brickY, brickWidth, brickHeight);
+                }
+            }
+        }
+    }
+
+    function update() {
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+        if (ball.x < 0 || ball.x > 400) ball.dx = -ball.dx;
+        if (ball.y < 0) ball.dy = -ball.dy;
+        if (ball.y > 280 && ball.x > paddle.x && ball.x < paddle.x + 80) ball.dy = -ball.dy;
+
+        for (let c = 0; c < brickColumnCount; c++) {
+            for (let r = 0; r < brickRowCount; r++) {
+                const b = bricks[c][r];
+                if (b.status === 1) {
+                    if (ball.x > b.x && ball.x < b.x + brickWidth && ball.y > b.y && ball.y < b.y + brickHeight) {
+                        ball.dy = -ball.dy;
+                        b.status = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    function movePaddle(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        paddle.x = Math.max(0, Math.min(320, x - rect.left - 40));
+    }
+
+    canvas.addEventListener("mousemove", movePaddle);
+    canvas.addEventListener("touchmove", movePaddle);
+    loop();
+}
+
+// =======================
+//   REACTION mit Random Delay
+// =======================
+let reactionTimeout = null;
+
+function reactionClick() {
+    const box = document.getElementById("reactionBox");
+    box.style.background = "#555";
+    box.innerHTML = "Warte...";
+    box.onclick = null;
+
+    const delay = Math.random() * 2000 + 1000;
+
+    reactionTimeout = setTimeout(() => {
+        box.style.background = "#00ff00";
+        box.innerHTML = "JETZT KLICKEN!";
+        const startTime = Date.now();
+
+        box.onclick = function() {
+            const time = Date.now() - startTime;
+            box.style.background = "#ff00ff";
+            box.innerHTML = time + " ms";
+            clearTimeout(reactionTimeout);
+            setTimeout(() => {
+                box.innerHTML = "Click when green!";
+                box.style.background = "#ff00ff";
+                box.onclick = reactionClick;
+            }, 1500);
+        };
+    }, delay);
+}
+
+// =======================
+//   TIC TAC TOE
+// =======================
+let tictactoeBoard = Array(9).fill(null);
+let currentPlayer = 'X';
+
+function createTicTacToe() {
+    const board = document.getElementById("tictactoeBoard");
+    board.innerHTML = "";
+    for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.style.cssText = "width:75px;height:75px;background:rgba(255,255,255,.08);border:2px solid #ff00ff;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;";
+        cell.onclick = () => makeMove(i, cell);
+        board.appendChild(cell);
+    }
+}
+
+function makeMove(index, cell) {
+    if (tictactoeBoard[index] || checkWinner()) return;
+    tictactoeBoard[index] = currentPlayer;
+    cell.innerHTML = currentPlayer;
+    cell.style.color = currentPlayer === 'X' ? "#ff00ff" : "#00ffff";
+    if (checkWinner()) {
+        setTimeout(() => alert(currentPlayer + " gewinnt!"), 100);
+    } else if (tictactoeBoard.every(cell => cell)) {
+        setTimeout(() => alert("Unentschieden!"), 100);
+    } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    }
+}
+
+function checkWinner() {
+    const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    return wins.some(combo => combo.every(i => tictactoeBoard[i] === currentPlayer));
+}
+
+function resetTicTacToe() {
+    tictactoeBoard = Array(9).fill(null);
+    currentPlayer = 'X';
+    createTicTacToe();
+}
+
+window.addEventListener("load", createTicTacToe);
+
+// =======================
+//   MEMORY
+// =======================
+let memoryCards = [];
+let flipped = [];
+let moves = 0;
+
+function createMemory() {
+    const board = document.getElementById("memoryBoard");
+    board.innerHTML = "";
+    memoryCards = ["🍎","🍌","🍒","🍓","🍎","🍌","🍒","🍓"];
+    memoryCards.sort(() => Math.random() - 0.5);
+    memoryCards.forEach((emoji, i) => {
+        const card = document.createElement("div");
+        card.style.cssText = "width:65px;height:65px;background:rgba(255,255,255,.1);border:2px solid #ff00ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;";
+        card.dataset.index = i;
+        card.onclick = () => flipCard(card, emoji);
+        board.appendChild(card);
+    });
+}
+
+function flipCard(card, emoji) {
+    if (flipped.length >= 2 || card.style.background === "rgba(0,255,255,.3)") return;
+    card.innerHTML = emoji;
+    card.style.background = "rgba(0,255,255,.3)";
+    flipped.push({card, emoji});
+    if (flipped.length === 2) {
+        moves++;
+        setTimeout(() => {
+            if (flipped[0].emoji === flipped[1].emoji) {
+                flipped.forEach(f => f.card.style.background = "rgba(0,255,0,.3)");
+            } else {
+                flipped.forEach(f => {
+                    f.card.innerHTML = "";
+                    f.card.style.background = "rgba(255,255,255,.1)";
+                });
+            }
+            flipped = [];
+        }, 800);
+    }
+}
+
+window.addEventListener("load", createMemory);
+
+// =======================
+//   DODGE
+// =======================
+function startDodge() {
+    const canvas = document.getElementById("dodgeCanvas");
+    const ctx = canvas.getContext("2d");
+    let player = {x:180, y:260};
+    let targetX = 180;
+    let blocks = [];
+    let score = 0;
+    const isMobile = 'ontouchstart' in window;
+
+    function draw() {
+        ctx.fillStyle = "#0a0018";
+        ctx.fillRect(0,0,400,300);
+        ctx.fillStyle = "#00ffff";
+        ctx.fillRect(player.x, player.y, 40, 40);
+        ctx.fillStyle = "#ff00ff";
+        blocks.forEach(b => ctx.fillRect(b.x, b.y, 30, 30));
+    }
+
+    function update() {
+        if (isMobile) {
+            if (player.x < targetX) player.x += 6;
+            if (player.x > targetX) player.x -= 6;
+        } else {
+            player.x = targetX;
+        }
+
+        blocks.forEach(b => b.y += 5);
+        blocks = blocks.filter(b => b.y < 300);
+
+        if (Math.random() < 0.1) blocks.push({x: Math.random()*370, y: -30});
+
+        blocks.forEach(b => {
+            if (player.x < b.x + 30 && player.x + 40 > b.x && player.y < b.y + 30 && player.y + 40 > b.y) {
+                alert("Game Over! Score: " + score);
+                clearInterval(window.dodgeInterval);
+            }
+        });
+        score++;
+    }
+
+    function loop() {
+        update();
+        draw();
+    }
+
+    function movePlayer(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        targetX = Math.max(0, Math.min(360, x - rect.left - 20));
+    }
+
+    canvas.addEventListener("mousemove", movePlayer);
+    canvas.addEventListener("touchmove", movePlayer);
+
+    if (window.dodgeInterval) clearInterval(window.dodgeInterval);
+    window.dodgeInterval = setInterval(loop, 1000/60);
+}
+
+// =======================
+//   CLICKER
+// =======================
+let clickCount = 0;
+let clickerInterval = null;
+
+function startClicker() {
+    const display = document.getElementById("clickCount");
+    clickCount = 0;
+    display.innerHTML = "0";
+    
+    if (clickerInterval) clearInterval(clickerInterval);
+    
+    clickerInterval = setTimeout(() => {
+        alert("Zeit abgelaufen! Du hast " + clickCount + " Klicks geschafft!");
+        display.innerHTML = clickCount;
+    }, 10000);
+    
+    document.onclick = function() {
+        clickCount++;
+        display.innerHTML = clickCount;
+    };
+}
+
+window.addEventListener("load", () => {
+    document.body.style.overflow = 'hidden';
+});
+</script>
+</body>
+</html>
