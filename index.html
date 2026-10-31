@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LeBuscho's Dark Hub V3</title>
 
-<!-- Website Icon -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌌</text></svg>">
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -96,7 +95,6 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
 </head>
 <body class="default-bg">
 
-<!-- Ladebildschirm -->
 <div id="loading" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(5,1,10,0.92);display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:9999999;">
     <div style="width:85px;height:85px;border-radius:50%;border:4px solid rgba(255,255,255,.1);border-top:4px solid #ff00ff;animation:spin 1s linear infinite;box-shadow:0 0 25px #ff00ff;"></div>
     <div style="margin-top:18px;font-size:19px;color:#ff9cff;">BOOTING DARK HUB...</div>
@@ -139,7 +137,6 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
     <button onclick="toggleSettingsMenu()" style="margin-top:18px;width:100%;padding:10px;background:#ff00ff;color:white;border:none;border-radius:9px;">Schließen</button>
 </div>
 
-<!-- Schnellzugriff -->
 <div class="quickApps">
     <a class="app-btn" href="discord://" target="_blank">💬 Discord</a>
 </div>
@@ -147,7 +144,6 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
     <a class="app-btn" href="roblox://" target="_blank" style="width:200px;">🎮 Roblox App</a>
 </div>
 
-<!-- Haupt Tabs -->
 <div style="text-align:center;margin-top:12px;">
     <div class="tab-buttons">
         <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
@@ -157,10 +153,9 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
     </div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard" class="tab-content active">
     <div class="container">
-        <!-- Suchleiste mit Link-Support -->
+        
         <form class="search" id="searchForm" onsubmit="handleSearch(event)">
             <input id="searchInput" type="text" placeholder="🔍 Google suchen oder Link eingeben...">
             <button type="submit">Suchen</button>
@@ -182,7 +177,6 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
     </div>
 </div>
 
-<!-- TOOLS -->
 <div id="tools" class="tab-content">
     <div style="max-width:820px;margin:25px auto;padding:0 15px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
@@ -202,7 +196,6 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
     </div>
 </div>
 
-<!-- GAMES -->
 <div id="games" class="tab-content">
     <div style="text-align:center;margin:20px 0;">
         <h2 style="color:#ff9cff;">🎮 Games</h2>
@@ -219,7 +212,6 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
         <button class="game-btn" onclick="showGame('clicker')">Clicker</button>
     </div>
 
-    <!-- Snake -->
     <div id="snake" class="game-container active" style="text-align:center;">
         <h3>⚡ NEON SNAKE</h3>
         <canvas id="gameCanvas" width="180" height="180"></canvas>
@@ -241,47 +233,40 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
         <button id="gameStartBtn" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">▶ START</button>
     </div>
 
-    <!-- Pong mit KI -->
     <div id="pong" class="game-container" style="text-align:center;display:none;">
         <h3>🏓 PONG</h3>
         <canvas id="pongCanvas" width="400" height="300"></canvas>
         <button onclick="startPong()" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">Start</button>
     </div>
 
-    <!-- Breakout mit Blöcken -->
     <div id="breakout" class="game-container" style="text-align:center;display:none;">
         <h3>🧱 BREAKOUT</h3>
         <canvas id="breakoutCanvas" width="400" height="300"></canvas>
         <button onclick="startBreakout()" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">Start</button>
     </div>
 
-    <!-- Tic Tac Toe -->
     <div id="tictactoe" class="game-container" style="text-align:center;display:none;">
         <h3>❌ Tic Tac Toe</h3>
         <div id="tictactoeBoard" style="display:grid;grid-template-columns:repeat(3,75px);gap:5px;margin:15px auto;width:235px;"></div>
         <button onclick="resetTicTacToe()" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">Reset</button>
     </div>
 
-    <!-- Memory -->
     <div id="memory" class="game-container" style="text-align:center;display:none;">
         <h3>🧠 Memory Match</h3>
         <div id="memoryBoard" style="display:grid;grid-template-columns:repeat(4,65px);gap:6px;margin:15px auto;width:280px;"></div>
     </div>
 
-    <!-- Reaction mit Random Delay -->
     <div id="reaction" class="game-container" style="text-align:center;display:none;">
         <h3>⚡ Reaction Clicker</h3>
         <div id="reactionBox" style="width:280px;height:180px;background:#ff00ff;margin:15px auto;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;">Click when green!</div>
     </div>
 
-    <!-- Dodge -->
     <div id="dodge" class="game-container" style="text-align:center;display:none;">
         <h3>🚀 Dodge the Blocks</h3>
         <canvas id="dodgeCanvas" width="400" height="300"></canvas>
         <button onclick="startDodge()" style="margin-top:8px;padding:9px 18px;background:#ff00ff;color:white;border:none;border-radius:8px;">Start</button>
     </div>
 
-    <!-- Clicker -->
     <div id="clicker" class="game-container" style="text-align:center;display:none;">
         <h3>🖱️ Click Speed Test</h3>
         <div style="font-size:42px;margin:15px 0;" id="clickCount">0</div>
@@ -289,7 +274,6 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
     </div>
 </div>
 
-<!-- TIMER -->
 <div id="timer" class="tab-content" style="display:none;">
     <div style="max-width:400px;margin:25px auto;text-align:center;">
         <h3>⏱️ Pomodoro Timer</h3>
@@ -304,9 +288,7 @@ h1 { font-size:52px; color:#efb6ff; text-shadow:0 0 12px #ff00ff; }
 </div>
 
 <script>
-// =======================
-//   Ladebildschirm
-// =======================
+
 const loading = document.getElementById("loading");
 function hideLoadingScreen() {
     if (!loading) return;
@@ -316,9 +298,6 @@ function hideLoadingScreen() {
 }
 setTimeout(hideLoadingScreen, 1800);
 
-// =======================
-//   CLOCK
-// =======================
 const timeEl = document.getElementById("time");
 function updateClock() {
     const now = new Date();
@@ -327,15 +306,11 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// =======================
-//   SUCHFUNKTION (Google + direkte Links)
-// =======================
 function handleSearch(e) {
     e.preventDefault();
     const query = document.getElementById("searchInput").value.trim();
     if (!query) return;
 
-    // Prüfen ob es ein Link ist
     if (query.includes('.') && !query.includes(' ')) {
         let url = query;
         if (!url.startsWith('http')) {
@@ -343,17 +318,12 @@ function handleSearch(e) {
         }
         window.open(url, "_blank");
     } else {
-        // Normale Google Suche
         window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
     }
     
-    // Suchfeld leeren
     document.getElementById("searchInput").value = "";
 }
 
-// =======================
-//   HINTERGRUND + SPEICHERN
-// =======================
 const backgrounds = [
     { name: "Lila Gradient", type: "gradient" },
     { name: "🌄 Berge & Natur", url: "https://picsum.photos/id/1016/1920/1080" },
@@ -390,9 +360,6 @@ window.addEventListener('load', () => {
     }
 });
 
-// =======================
-//   SOUND + MUSIC
-// =======================
 let typingSoundEnabled = true;
 let ambientMusicEnabled = false;
 let audioContext;
@@ -459,9 +426,6 @@ if (searchInput) {
     });
 }
 
-// =======================
-//   EINSTELLUNGEN
-// =======================
 function showSettingsTab(tab) {
     document.getElementById('background-tab').style.display = (tab === 'background') ? 'block' : 'none';
     document.getElementById('sound-tab').style.display = (tab === 'sound') ? 'block' : 'none';
@@ -473,9 +437,6 @@ function toggleSettingsMenu() {
     document.getElementById('settingsModal').classList.toggle('active');
 }
 
-// =======================
-//   TO-DO + NOTIZEN
-// =======================
 function loadTodos() {
     const list = document.getElementById('todoList');
     if (!list) return;
@@ -536,9 +497,6 @@ window.addEventListener('load', () => {
     loadTodos();
 });
 
-// =======================
-//   TAB SYSTEM
-// =======================
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -549,9 +507,6 @@ function showTab(tabId) {
     document.body.style.overflow = (tabId === 'dashboard') ? 'hidden' : 'auto';
 }
 
-// =======================
-//   GAME SWITCHER
-// =======================
 function showGame(gameId) {
     document.querySelectorAll('.game-container').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.game-btn').forEach(el => el.classList.remove('active'));
@@ -560,9 +515,6 @@ function showGame(gameId) {
     event.currentTarget.classList.add('active');
 }
 
-// =======================
-//   SNAKE
-// =======================
 let snakeDx = 15, snakeDy = 0, snakeRunning = false;
 
 function snakeDirection(dir) {
@@ -658,9 +610,6 @@ window.addEventListener("load", () => {
     initSnakeGame();
 });
 
-// =======================
-//   PONG mit KI
-// =======================
 function startPong() {
     const canvas = document.getElementById("pongCanvas");
     const ctx = canvas.getContext("2d");
@@ -710,9 +659,6 @@ function startPong() {
     loop();
 }
 
-// =======================
-//   BREAKOUT mit Blöcken
-// =======================
 function startBreakout() {
     const canvas = document.getElementById("breakoutCanvas");
     const ctx = canvas.getContext("2d");
@@ -790,9 +736,6 @@ function startBreakout() {
     loop();
 }
 
-// =======================
-//   REACTION mit Random Delay
-// =======================
 let reactionTimeout = null;
 
 function reactionClick() {
@@ -822,9 +765,6 @@ function reactionClick() {
     }, delay);
 }
 
-// =======================
-//   TIC TAC TOE
-// =======================
 let tictactoeBoard = Array(9).fill(null);
 let currentPlayer = 'X';
 
@@ -866,9 +806,6 @@ function resetTicTacToe() {
 
 window.addEventListener("load", createTicTacToe);
 
-// =======================
-//   MEMORY
-// =======================
 let memoryCards = [];
 let flipped = [];
 let moves = 0;
@@ -910,9 +847,6 @@ function flipCard(card, emoji) {
 
 window.addEventListener("load", createMemory);
 
-// =======================
-//   DODGE
-// =======================
 function startDodge() {
     const canvas = document.getElementById("dodgeCanvas");
     const ctx = canvas.getContext("2d");
@@ -971,9 +905,6 @@ function startDodge() {
     window.dodgeInterval = setInterval(loop, 1000/60);
 }
 
-// =======================
-//   CLICKER
-// =======================
 let clickCount = 0;
 let clickerInterval = null;
 
@@ -995,9 +926,6 @@ function startClicker() {
     };
 }
 
-// =======================
-//   TIMER (Pomodoro)
-// =======================
 let timerInterval = null;
 let timeLeft = 25 * 60;
 
